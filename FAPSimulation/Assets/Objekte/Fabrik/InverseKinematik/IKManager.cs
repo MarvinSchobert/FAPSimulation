@@ -209,8 +209,12 @@ public class IKManager : MonoBehaviour
             {
                 // Debug.Log("Angle: " + angles[i]);
                 
-                if (angles[i] < Joints[i].MinAngle) { angles[i] = Joints[i].MinAngle; Debug.Log("Zu gering: " + angles[i] + " min: " + Joints[i].MinAngle); }
-                else if (angles[i] > Joints[i].MaxAngle) { angles[i] = Joints[i].MaxAngle; Debug.Log("Zu hoch: " + angles[i] +" max: " + Joints[i].MaxAngle); }
+                if (angles[i] < Joints[i].MinAngle) { angles[i] = Joints[i].MinAngle; 
+                    // Debug.Log("Zu gering: " + angles[i] + " min: " + Joints[i].MinAngle); 
+                }
+                else if (angles[i] > Joints[i].MaxAngle) { angles[i] = Joints[i].MaxAngle; 
+                    // Debug.Log("Zu hoch: " + angles[i] +" max: " + Joints[i].MaxAngle); 
+                }
 
             }
 
