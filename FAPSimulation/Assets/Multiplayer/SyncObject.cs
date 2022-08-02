@@ -11,30 +11,34 @@ public class SyncObject : MonoBehaviour
     public Vector3 LastPos;
     public Quaternion LastRot;
     public bool UpdateTransform = true;
+    public string SyncInfoString;
 
     public void Start()
     {
         
     }
-    public void Init()
+    public void Init(bool send = true)
     {
-        Debug.Log("Initializing Gameobject");
-        JObject obj = new JObject();
-        obj["type"] = "SpawnRqt";
-        obj["prefabName"] = prefabName;
-        obj["name"] = name;
-        obj["ID"] = ID;
-        obj["posX"] = transform.position.x;
-        obj["posY"] = transform.position.y;
-        obj["posZ"] = transform.position.z;
-        obj["rotX"] = transform.rotation.x;
-        obj["rotY"] = transform.rotation.y;
-        obj["rotZ"] = transform.rotation.z;
-        obj["rotW"] = transform.rotation.w;
-        Debug.Log(obj.ToString());
-        Debug.Log(GameManager.name);
-        Debug.Log(GameManager.sender.name);
-        GameManager.sender.SpawnObjectRequest(obj);
+        if (send)
+        {
+            Debug.Log("Initializing Gameobject");
+            JObject obj = new JObject();
+            obj["type"] = "SpawnRqt";
+            obj["prefabName"] = prefabName;
+            obj["name"] = name;
+            obj["ID"] = ID;
+            obj["posX"] = transform.position.x;
+            obj["posY"] = transform.position.y;
+            obj["posZ"] = transform.position.z;
+            obj["rotX"] = transform.rotation.x;
+            obj["rotY"] = transform.rotation.y;
+            obj["rotZ"] = transform.rotation.z;
+            obj["rotW"] = transform.rotation.w;
+            obj["syncInfoString"] = SyncInfoString;
+
+            GameManager.sender.SpawnObjectRequest(obj);
+            Debug.Log(obj.ToString());
+        }
         StartCoroutine(UpdateNetwork());
     }
 
@@ -64,6 +68,7 @@ public class SyncObject : MonoBehaviour
                 obj["rotY"] = transform.rotation.y;
                 obj["rotZ"] = transform.rotation.z;
                 obj["rotW"] = transform.rotation.w;
+                obj["syncInfoString"] = SyncInfoString;
                 GameManager.sender.SpawnObjectRequest(obj);
                 
             }

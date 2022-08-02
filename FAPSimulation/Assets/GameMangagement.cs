@@ -64,6 +64,29 @@ public class GameMangagement : MonoBehaviour
         }
     }
 
+    public void SpawnLocalObject(GameObject obj, Vector3 pos, Quaternion rot)
+    {
+        // Höchste ID finden
+        int highestID = 0;
+        for (int i = 0; i < RemoteObjects.Count; i++)
+        {
+            if (int.Parse(RemoteObjects[i].ID) >= highestID)
+            {
+                highestID = int.Parse(RemoteObjects[i].ID) + 1;
+            }
+        }
+
+        if (obj == null)
+        {
+            obj = RemoteObjectsDatabase[1].gameObject;
+        }
+        GameObject go = Instantiate(obj, pos, rot);
+        go.GetComponent<SyncObject>().GameManager = this;
+        go.GetComponent<SyncObject>().ID = highestID.ToString();
+        go.GetComponent<SyncObject>().Init();
+        RemoteObjects.Add(go.GetComponent<SyncObject>());
+    }
+
     public void SpawnObjectCallback(JObject obj)
     {      
         for (int i = 0; i < RemoteObjects.Count; i++)
@@ -81,6 +104,7 @@ public class GameMangagement : MonoBehaviour
                 newObject.name = obj["name"].ToString();
                 newObject.GetComponent<SyncObject>().ID = obj["ID"].ToString();
                 newObject.GetComponent<SyncObject>().GameManager = this;
+                newObject.GetComponent<SyncObject>().Init(false);
                 RemoteObjects.Add(newObject.GetComponent<SyncObject>());
             }
         }        
@@ -97,6 +121,7 @@ public class GameMangagement : MonoBehaviour
                 RemoteObjects[i].transform.rotation = new Quaternion(float.Parse(obj["rotX"].ToString()), float.Parse(obj["rotY"].ToString()), float.Parse(obj["rotZ"].ToString()), float.Parse(obj["rotW"].ToString()));
                 RemoteObjects[i].LastPos = RemoteObjects[i].transform.position;
                 RemoteObjects[i].LastRot = RemoteObjects[i].transform.rotation;
+                RemoteObjects[i].SyncInfoString = obj["syncInfoString"].ToString();
             }
         }
     }
