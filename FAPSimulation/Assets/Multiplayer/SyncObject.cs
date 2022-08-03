@@ -12,16 +12,16 @@ public class SyncObject : MonoBehaviour
     public Quaternion LastRot;
     public bool UpdateTransform = true;
     public string SyncInfoString;
+    public int SyncEveryXFrame;
 
     public void Start()
     {
-        
+        if (SyncEveryXFrame == 0) SyncEveryXFrame = 1;
     }
     public void Init(bool send = true)
     {
         if (send)
         {
-            Debug.Log("Initializing Gameobject");
             JObject obj = new JObject();
             obj["type"] = "SpawnRqt";
             obj["prefabName"] = prefabName;
@@ -37,7 +37,6 @@ public class SyncObject : MonoBehaviour
             obj["syncInfoString"] = SyncInfoString;
 
             GameManager.sender.SpawnObjectRequest(obj);
-            Debug.Log(obj.ToString());
         }
         StartCoroutine(UpdateNetwork());
     }
@@ -72,7 +71,11 @@ public class SyncObject : MonoBehaviour
                 GameManager.sender.SpawnObjectRequest(obj);
                 
             }
-            yield return null;
+            if (SyncEveryXFrame == 0) SyncEveryXFrame = 1;
+            for (int i = 0; i < SyncEveryXFrame; i++)
+            {
+                yield return new WaitForSeconds(0.05f);
+            }
         }
     }
 }
