@@ -109,8 +109,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameManager: {fileID: 0}
-  ID: 4
+  ID: 
   prefabName: EasyCube
   LastPos: {x: 0, y: 0, z: 0}
   LastRot: {x: 0, y: 0, z: 0, w: 0}
   UpdateTransform: 1
+  SyncInfoString: 
+  SyncEveryXFrame: 0
+  hasPhysics: 0

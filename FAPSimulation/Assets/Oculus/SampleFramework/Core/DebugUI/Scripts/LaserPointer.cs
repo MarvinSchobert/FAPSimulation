@@ -68,6 +68,7 @@ public class LaserPointer : OVRCursor
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
+        _laserBeamBehavior = LaserBeamBehavior.OnWhenHitTarget;
     }
 
     private void Start()

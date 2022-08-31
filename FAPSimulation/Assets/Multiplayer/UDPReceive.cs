@@ -16,6 +16,8 @@
 */
 using UnityEngine;
 using Newtonsoft.Json.Linq;
+using System.Collections;
+using System.Collections.Generic;
 
 using System;
 using System.Text;
@@ -34,12 +36,12 @@ public class UDPReceive : MonoBehaviour
     IPEndPoint RemoteIpEndPoint;
     Thread receiveThread;
 
-    JObject data;
+    List <JObject> data;
     bool dataReady;
 
     public void Start()
     {
-        
+        data = new List<JObject>();
 
        
         receiveThread = new Thread(
@@ -49,19 +51,27 @@ public class UDPReceive : MonoBehaviour
     }
     public void Update()
     {
-        if (dataReady)
-        {
-            if (data["type"].ToString() == "SpawnInfo")
+       if (data.Count > 0) { 
+            if (data[0]["type"].ToString() == "SpawnInfo")
             {
-                GameManager.SpawnObjectCallback(data);
+                GameManager.SpawnObjectCallback(data[0]);
             }
 
-            if (data["type"].ToString() == "ChangeInfo")
+            if (data[0]["type"].ToString() == "ChangeInfo")
             {
-                GameManager.ChangeObjectCallback(data);
+                GameManager.ChangeObjectCallback(data[0]);
             }
-            dataReady = false;
-        }
+
+            if (data[0]["type"].ToString() == "RemoveInfo")
+            {
+                GameManager.RemoveObjectCallback(data[0]);
+            }
+            if (data[0]["type"].ToString() == "SyncVarInfo")
+            {
+                GameManager.SyncVarCallback(data[0]);
+            }
+            data.RemoveAt(0);
+        }    
     }
 
     private void ReceiveData()
@@ -76,13 +86,9 @@ public class UDPReceive : MonoBehaviour
                 Byte[] receiveBytes = receivingUdpClient.Receive(ref RemoteIpEndPoint);
 
                 string returnData = Encoding.ASCII.GetString(receiveBytes);
-                
-                
+
                 JObject obj = JObject.Parse(returnData);
-                data = obj;
-                
-                while (dataReady) { }
-                dataReady = true;
+                data.Add (obj);
                
             }
             catch (Exception e)

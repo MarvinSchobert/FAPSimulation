@@ -51,7 +51,7 @@ public class GameMangagement : MonoBehaviour
         }
 
         RemoteObjects = new List<SyncObject>(FindObjectsOfType<SyncObject>());
-        Invoke("InitRemoteObjects", 1.0f);
+        Invoke("InitRemoteObjects", 1.5f);
 
     }
 
@@ -73,7 +73,8 @@ public class GameMangagement : MonoBehaviour
                 RemoteObjects[i].ID = highestID.ToString();
             }
             RemoteObjects[i].GameManager = this;
-            RemoteObjects[i].Init();
+            
+            RemoteObjects[i].Init();            
         }
     }
 
@@ -115,13 +116,48 @@ public class GameMangagement : MonoBehaviour
             if (RemoteObjectsDatabase[i].prefabName == obj["prefabName"].ToString())
             {                
                 GameObject newObject = Instantiate(RemoteObjectsDatabase[i].gameObject, new Vector3(float.Parse(obj["posX"].ToString()), float.Parse(obj["posY"].ToString()), float.Parse(obj["posZ"].ToString())), new Quaternion(float.Parse(obj["rotX"].ToString()), float.Parse(obj["rotY"].ToString()), float.Parse(obj["rotZ"].ToString()), float.Parse(obj["rotW"].ToString())));
-                newObject.name = obj["name"].ToString();
+                newObject.name = obj["name"].ToString();                
                 newObject.GetComponent<SyncObject>().ID = obj["ID"].ToString();
                 newObject.GetComponent<SyncObject>().GameManager = this;
-                newObject.GetComponent<SyncObject>().Init(false);
                 RemoteObjects.Add(newObject.GetComponent<SyncObject>());
+                newObject.GetComponent<SyncObject>().Init(false);
+                break;
             }
         }        
+    }
+
+    public void RemoveObjectCallback (JObject obj)
+    {
+        Debug.Log("Removing Object " + obj.ToString());
+        for (int i = 0; i < RemoteObjects.Count; i++)
+        {
+            if (RemoteObjects[i].ID == obj["ID"].ToString())
+            {
+                Debug.Log("Found right object: " + RemoteObjects[i].gameObject.name);
+                Destroy(RemoteObjects[i].gameObject);
+                RemoteObjects.Remove(RemoteObjects[i]);
+                return;
+            }
+        }
+    }
+
+    public void SyncVarCallback(JObject obj)
+    {
+        Debug.Log("Syncing Var " + obj.ToString());
+        for (int i = 0; i < RemoteObjects.Count; i++)
+        {
+            if (RemoteObjects[i].ID == obj["ID"].ToString())
+            {
+                Debug.Log("Found right object: " + RemoteObjects[i].gameObject.name);
+                if (RemoteObjects[i].GetComponent<NetworkPlayer>() != null)
+                {
+                    RemoteObjects[i].GetComponent<NetworkPlayer>().stats = (JObject) obj["stats"];
+                }
+
+
+                return;
+            }
+        }
     }
 
     public void ChangeObjectCallback(JObject obj)

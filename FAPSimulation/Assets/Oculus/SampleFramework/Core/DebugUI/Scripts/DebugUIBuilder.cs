@@ -94,12 +94,17 @@ public class DebugUIBuilder : MonoBehaviour
   public bool isHorizontal = false;
   public bool usePanelCentricRelayout = false;
 
-  public void Awake()
+
+    private void Start()
+    {
+        
+    }
+    public void Awake()
   {
     Debug.Assert(instance == null);
     instance = this;
     menuOffset = transform.position; // TODO: this is unpredictable/busted
-    gameObject.SetActive(false);
+    // gameObject.SetActive(false);
     rig = FindObjectOfType<OVRCameraRig>();
     for (int i = 0; i < toEnable.Count; ++i)
     {

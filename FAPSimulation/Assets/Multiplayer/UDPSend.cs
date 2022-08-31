@@ -63,6 +63,7 @@ public class UDPSend : MonoBehaviour
         _sendObject(obj);
     }
 
+
     public void ChangeObjectRequest() { //TODO
         JObject obj = new JObject();
         obj["type"] = "ChangeRqt";
@@ -77,7 +78,6 @@ public class UDPSend : MonoBehaviour
         {
             byte[] data = Encoding.UTF8.GetBytes(obj.ToString());
             client.Send(data, data.Length, remoteEndPoint);
-            Debug.Log("Sent message");
         }
         catch (Exception err)
         {
