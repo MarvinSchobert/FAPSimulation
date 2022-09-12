@@ -51,27 +51,35 @@ public class UDPReceive : MonoBehaviour
     }
     public void Update()
     {
-       if (data.Count > 0) { 
-            if (data[0]["type"].ToString() == "SpawnInfo")
-            {
-                GameManager.SpawnObjectCallback(data[0]);
-            }
+        if (data.Count > 0)
+        {
+            processData(0);
+        }
+        
+       
+    }
 
-            if (data[0]["type"].ToString() == "ChangeInfo")
-            {
-                GameManager.ChangeObjectCallback(data[0]);
-            }
+    void processData(int idx)
+    {
+        if (data[idx]["type"].ToString() == "SpawnInfo")
+        {
+            GameManager.SpawnObjectCallback(data[idx]);
+        }
 
-            if (data[0]["type"].ToString() == "RemoveInfo")
-            {
-                GameManager.RemoveObjectCallback(data[0]);
-            }
-            if (data[0]["type"].ToString() == "SyncVarInfo")
-            {
-                GameManager.SyncVarCallback(data[0]);
-            }
-            data.RemoveAt(0);
-        }    
+        if (data[idx]["type"].ToString() == "ChangeInfo")
+        {
+            GameManager.ChangeObjectCallback(data[idx]);
+        }
+
+        if (data[idx]["type"].ToString() == "RemoveInfo")
+        {
+            GameManager.RemoveObjectCallback(data[idx]);
+        }
+        if (data[idx]["type"].ToString() == "SyncVarInfo")
+        {
+            GameManager.SyncVarCallback(data[idx]);
+        }
+        data.RemoveAt(idx);
     }
 
     private void ReceiveData()
@@ -88,7 +96,14 @@ public class UDPReceive : MonoBehaviour
                 string returnData = Encoding.ASCII.GetString(receiveBytes);
 
                 JObject obj = JObject.Parse(returnData);
-                data.Add (obj);
+                if (data.Count > 10 && obj["type"].ToString() != "ChangeInfo")
+                {
+                    // Wenn zu viele Nachrichten eingehen, die ChangeInfos ignorieren. Alle anderen werden weiterhin berücksichtigt.
+                } else
+                {
+                    data.Add(obj);
+                }
+               
                
             }
             catch (Exception e)

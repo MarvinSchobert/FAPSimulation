@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
+using OculusSampleFramework;
 
 public class SyncObject : MonoBehaviour
 {
@@ -10,19 +11,32 @@ public class SyncObject : MonoBehaviour
     public string prefabName;
     public Vector3 LastPos;
     public Quaternion LastRot;
+    public float scaleFactor = 1;
     public bool UpdateTransform = true;
     public string SyncInfoString;
     public int SyncEveryXFrame;
+    public string[] categories;
 
-    
+    public bool AddTablet;
     public bool isChild;
     public bool hasPhysics;
 
+    public bool lockRotationX;
+    public bool lockRotationY;
+    public bool lockRotationZ;
+
     private Vector3 velocity;
+    public Quaternion initRotation;
+    public float lastScale = 1;
+    DistanceGrabbable grab;
 
     public void Start()
     {
-        if (SyncEveryXFrame == 0) SyncEveryXFrame = 1;
+        if (SyncEveryXFrame == 0) SyncEveryXFrame = 3;
+        grab = GetComponent<DistanceGrabbable>();
+
+        
+
     }
     public void Init(bool send = true)
     {
@@ -62,6 +76,9 @@ public class SyncObject : MonoBehaviour
             obj["rotY"] = transform.rotation.y;
             obj["rotZ"] = transform.rotation.z;
             obj["rotW"] = transform.rotation.w;
+            obj["scaleX"] = transform.localScale.x;
+            obj["scaleY"] = transform.localScale.y;
+            obj["scaleZ"] = transform.localScale.z;
             obj["syncInfoString"] = SyncInfoString;
 
             GameManager.sender.SpawnObjectRequest(obj);
@@ -86,9 +103,9 @@ public class SyncObject : MonoBehaviour
                     sync.Init(false);
                 }
             }
-        }
-       
+        }       
         StartCoroutine(UpdateTransformRoutine());
+        initRotation = transform.rotation;
     }
 
     public void ToggleUpdateTransform()
@@ -101,6 +118,8 @@ public class SyncObject : MonoBehaviour
     {
         LastPos = transform.position;
         LastRot = transform.rotation;
+        Vector3 initScale = transform.localScale;
+       
         while (true)
         {           
             if (velocity != Vector3.zero)
@@ -111,8 +130,17 @@ public class SyncObject : MonoBehaviour
                 if (velocity.magnitude < 0.01f) velocity = Vector3.zero;
             }
 
-            if (( LastPos != transform.position || LastRot != transform.rotation))
+           
+
+
+            if (( LastPos != transform.position || LastRot != transform.rotation || lastScale != scaleFactor))
             {
+                if (lastScale != scaleFactor)
+                {
+                    transform.localScale = initScale * scaleFactor;
+                    lastScale = scaleFactor;
+                }
+
                 // Physik beachten bei Änderungen
                 if (hasPhysics)
                 {
@@ -136,17 +164,40 @@ public class SyncObject : MonoBehaviour
                     obj["rotY"] = transform.rotation.y;
                     obj["rotZ"] = transform.rotation.z;
                     obj["rotW"] = transform.rotation.w;
+                    obj["scaleX"] = transform.localScale.x;
+                    obj["scaleY"] = transform.localScale.y;
+                    obj["scaleZ"] = transform.localScale.z;
                     obj["syncInfoString"] = SyncInfoString;
                     GameManager.sender.SpawnObjectRequest(obj);
                 }
 
                 
             }
-            if (SyncEveryXFrame == 0) SyncEveryXFrame = 1;
+            if (SyncEveryXFrame == 0) SyncEveryXFrame = 3;
             for (int i = 0; i < SyncEveryXFrame; i++)
             {
                 yield return null;
             }
         }
+    }
+
+    public void LateUpdate()
+    {
+        // Wenn das Objekt gegriffen wird nicht komplett bunt rotieren
+        //Vector3 localRot = transform.rotation.eulerAngles;
+        //if (lockRotationX)
+        //{
+        //    localRot.x = initRotation.eulerAngles.x;
+        //}
+        //if (lockRotationY)
+        //{
+        //    localRot.y = initRotation.eulerAngles.y;
+        //}
+        //if (lockRotationZ)
+        //{
+        //    localRot.z = initRotation.eulerAngles.z;
+        //}
+
+        //transform.rotation = Quaternion.Euler(localRot);
     }
 }

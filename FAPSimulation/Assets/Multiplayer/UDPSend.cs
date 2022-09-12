@@ -70,6 +70,13 @@ public class UDPSend : MonoBehaviour
         _sendObject(obj);
     }
 
+    public void UnRegisterOwnClient()
+    {
+        JObject obj = new JObject();
+        obj["type"] = "DeleteClientRqt";
+        _sendObject(obj);
+    }
+
 
     // sendData
     private void _sendObject(JObject obj)

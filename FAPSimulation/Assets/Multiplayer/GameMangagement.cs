@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 public class GameMangagement : MonoBehaviour
 {
@@ -50,9 +51,28 @@ public class GameMangagement : MonoBehaviour
                 break;
         }
 
+        // Die RemoteObjectsDatabase füllen:
+        GameObject[] allResources = Resources.LoadAll("", typeof(GameObject)).Cast<GameObject>().ToArray();
+        foreach (GameObject go in allResources)
+        {
+            if (go.GetComponent<SyncObject>() != null)
+            {
+                RemoteObjectsDatabase.Add(go.GetComponent<SyncObject>());
+            }
+        }
+
+
         RemoteObjects = new List<SyncObject>(FindObjectsOfType<SyncObject>());
         Invoke("InitRemoteObjects", 1.5f);
 
+    }
+
+   
+
+    public void OnApplicationQuit()
+    {
+        // Client wieder löschen
+        sender.UnRegisterOwnClient();
     }
 
     public void InitRemoteObjects()
@@ -116,8 +136,10 @@ public class GameMangagement : MonoBehaviour
             if (RemoteObjectsDatabase[i].prefabName == obj["prefabName"].ToString())
             {                
                 GameObject newObject = Instantiate(RemoteObjectsDatabase[i].gameObject, new Vector3(float.Parse(obj["posX"].ToString()), float.Parse(obj["posY"].ToString()), float.Parse(obj["posZ"].ToString())), new Quaternion(float.Parse(obj["rotX"].ToString()), float.Parse(obj["rotY"].ToString()), float.Parse(obj["rotZ"].ToString()), float.Parse(obj["rotW"].ToString())));
-                newObject.name = obj["name"].ToString();                
+                newObject.name = obj["name"].ToString();
                 newObject.GetComponent<SyncObject>().ID = obj["ID"].ToString();
+                newObject.GetComponent<SyncObject>().scaleFactor = float.Parse(obj["scaleX"].ToString());
+                newObject.GetComponent<SyncObject>().lastScale = float.Parse(obj["scaleX"].ToString());
                 newObject.GetComponent<SyncObject>().GameManager = this;
                 RemoteObjects.Add(newObject.GetComponent<SyncObject>());
                 newObject.GetComponent<SyncObject>().Init(false);
@@ -170,6 +192,8 @@ public class GameMangagement : MonoBehaviour
                 RemoteObjects[i].transform.rotation = new Quaternion(float.Parse(obj["rotX"].ToString()), float.Parse(obj["rotY"].ToString()), float.Parse(obj["rotZ"].ToString()), float.Parse(obj["rotW"].ToString()));
                 RemoteObjects[i].LastPos = RemoteObjects[i].transform.position;
                 RemoteObjects[i].LastRot = RemoteObjects[i].transform.rotation;
+                RemoteObjects[i].scaleFactor = float.Parse(obj["scaleX"].ToString());
+                RemoteObjects[i].lastScale = float.Parse(obj["scaleX"].ToString());
                 RemoteObjects[i].SyncInfoString = obj["syncInfoString"].ToString();
             }
         }
