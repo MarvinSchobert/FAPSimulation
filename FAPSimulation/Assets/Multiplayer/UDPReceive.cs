@@ -71,6 +71,11 @@ public class UDPReceive : MonoBehaviour
             GameManager.ChangeObjectCallback(data[idx]);
         }
 
+        if (data[idx]["type"].ToString() == "InformClientLeadership")
+        {
+            GameManager.isClientLeader = true;
+        }
+
         if (data[idx]["type"].ToString() == "RemoveInfo")
         {
             GameManager.RemoveObjectCallback(data[idx]);

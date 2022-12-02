@@ -57,16 +57,22 @@ public class UDPSend : MonoBehaviour
         UiText.text = "Send Message to Server";
         _sendObject(obj);
     }
-
+    public void OnFinishedProductionTask (string taskId)
+    {
+        JObject obj = new JObject();
+        obj["taskId"] = taskId;
+        obj["type"] = "FinishedProdRqt";
+        _sendObject(obj);
+    }
     public void SpawnObjectRequest(JObject obj)
     {
         _sendObject(obj);
     }
 
 
-    public void ChangeObjectRequest() { //TODO
+    public void ChangeObjectRequest() {
         JObject obj = new JObject();
-        obj["type"] = "ChangeRqt";
+        obj["type"] = "ChangeRqt";        
         _sendObject(obj);
     }
 

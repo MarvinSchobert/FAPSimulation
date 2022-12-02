@@ -19,19 +19,19 @@ public class ComputerPlayerMovement : MonoBehaviour
             GetComponent<SyncObject>().enabled = true;
         }
         // Translation
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(2) || Input.GetMouseButton(0)&& Input.GetKey(KeyCode.LeftControl))
         {
             Vector3 delta = Input.mousePosition - mousePos; 
             transform.Translate(new Vector3 (-delta.x, 0, -delta.y)*Time.deltaTime);           
         }
         // Rotation
-        else if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1))
         {
             Vector3 delta = Input.mousePosition - mousePos;
             transform.RotateAround(transform.position -transform.up*5, Vector3.up, delta.x * 0.1f);
             transform.RotateAround(transform.position -transform.up*5,transform.right, -delta.y * 0.1f);
         }
-        else if (Input.mouseScrollDelta.y != 0)
+        if (Input.mouseScrollDelta.y != 0)
         {
             transform.Translate(Vector3.down * Input.mouseScrollDelta.y * Time.deltaTime * 45);
         }

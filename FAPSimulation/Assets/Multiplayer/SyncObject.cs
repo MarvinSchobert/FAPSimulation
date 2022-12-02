@@ -122,7 +122,7 @@ public class SyncObject : MonoBehaviour
        
         while (true)
         {           
-            if (velocity != Vector3.zero)
+            if (velocity != Vector3.zero && GameManager.isClientLeader)
             {
                 transform.Translate(velocity* Time.deltaTime, Space.World);
                 velocity *= 0.9f;
@@ -130,8 +130,13 @@ public class SyncObject : MonoBehaviour
                 if (velocity.magnitude < 0.01f) velocity = Vector3.zero;
             }
 
-           
 
+            // Physik beachten 
+            if (hasPhysics && GameManager.isClientLeader)
+            {
+                // velocity += ((transform.position - LastPos) - velocity) *0.9f;
+                GetComponent<Rigidbody>().isKinematic = false;
+            }
 
             if (( LastPos != transform.position || LastRot != transform.rotation || lastScale != scaleFactor))
             {
@@ -140,11 +145,12 @@ public class SyncObject : MonoBehaviour
                     transform.localScale = initScale * scaleFactor;
                     lastScale = scaleFactor;
                 }
-
-                // Physik beachten bei Änderungen
-                if (hasPhysics)
+                if (hasPhysics && GameManager.isClientLeader)
                 {
-                    velocity += ((transform.position - LastPos) - velocity) *0.9f;
+                    
+                    velocity = ((transform.position - LastPos)) *20f;
+                    Debug.Log("Apply Physics: " + velocity);
+                    GetComponent<Rigidbody>().velocity = velocity;
                 }
 
                 // Transform syncen

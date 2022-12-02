@@ -13,15 +13,17 @@ public class GameMangagement : MonoBehaviour
         Computer, Android, VirtualReality
     }
     public Platform activePlatform;
-
+    
 
     public GameObject AndroidObject;
     public GameObject ComputerObject;
     public GameObject VRObject;
 
     [HideInInspector] public UDPSend sender;
+    [HideInInspector] public SimulationsManager simManager;
 
-    
+    public bool isClientLeader = false;
+
     public List <SyncObject>  RemoteObjectsDatabase;
 
     public List<SyncObject> RemoteObjects;
@@ -29,6 +31,8 @@ public class GameMangagement : MonoBehaviour
 
     public void Start()
     {
+        simManager = GetComponent<SimulationsManager>();
+
         switch (activePlatform)
         {
             case Platform.Android:
@@ -141,6 +145,12 @@ public class GameMangagement : MonoBehaviour
                 newObject.GetComponent<SyncObject>().scaleFactor = float.Parse(obj["scaleX"].ToString());
                 newObject.GetComponent<SyncObject>().lastScale = float.Parse(obj["scaleX"].ToString());
                 newObject.GetComponent<SyncObject>().GameManager = this;
+                if (obj["equipmentId"]!= null && newObject.GetComponent<RessourceManager>() != null)
+                {
+                    newObject.GetComponent<RessourceManager>().RessourceID = obj["equipmentId"].ToString();
+                    newObject.GetComponent<RessourceManager>().simManager = simManager;
+                    simManager.ressources.Add(newObject.GetComponent<RessourceManager>());
+                }
                 RemoteObjects.Add(newObject.GetComponent<SyncObject>());
                 newObject.GetComponent<SyncObject>().Init(false);
                 break;
@@ -155,7 +165,7 @@ public class GameMangagement : MonoBehaviour
         {
             if (RemoteObjects[i].ID == obj["ID"].ToString())
             {
-                Debug.Log("Found right object: " + RemoteObjects[i].gameObject.name);
+                Debug.Log("Found right object: " + RemoteObjects[i].gameObject.name);                
                 Destroy(RemoteObjects[i].gameObject);
                 RemoteObjects.Remove(RemoteObjects[i]);
                 return;

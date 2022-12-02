@@ -1425,9 +1425,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GameManager: {fileID: 0}
   ID: 32
-  prefabName: "F\xF6rderband"
+  prefabName: "F\xF6rderband_Model"
   LastPos: {x: 0, y: 0, z: 0}
   LastRot: {x: 0, y: 0, z: 0, w: 1}
+  scaleFactor: 1
   UpdateTransform: 1
   SyncInfoString: 
   SyncEveryXFrame: 3
@@ -1437,6 +1438,11 @@ MonoBehaviour:
   AddTablet: 1
   isChild: 0
   hasPhysics: 0
+  lockRotationX: 0
+  lockRotationY: 0
+  lockRotationZ: 0
+  initRotation: {x: 0, y: 0, z: 0, w: 0}
+  lastScale: 1
 --- !u!1 &9199810123177014037
 GameObject:
   m_ObjectHideFlags: 0
