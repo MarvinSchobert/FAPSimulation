@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class VRMultiplayerController : MonoBehaviour
 {
-    public Text UiText; 
+    public TMPro.TMP_Text UiText; 
     public void EnableMultiplayerCallback()
     {
-        GetComponent<SyncObject>().Init();
         GetComponent<SyncObject>().enabled = true;
+        GetComponent<SyncObject>().Init();       
         GetComponent<SyncObject>().UpdateTransform = !GetComponent<SyncObject>().UpdateTransform;
         if (GetComponent<SyncObject>().UpdateTransform)
         {

@@ -30,6 +30,7 @@ public class SyncObject : MonoBehaviour
     public float lastScale = 1;
     DistanceGrabbable grab;
 
+
     public void Start()
     {
         if (SyncEveryXFrame == 0) SyncEveryXFrame = 3;
@@ -38,7 +39,7 @@ public class SyncObject : MonoBehaviour
         
 
     }
-    public void Init(bool send = true)
+    public void Init(bool send = true, int forceId = -1)
     {
         if (GameManager == null)
         {
@@ -46,21 +47,29 @@ public class SyncObject : MonoBehaviour
         }
         if (ID == "")
         {
-            int highestID = 0;
-            for (int j = 0; j < GameManager.RemoteObjects.Count; j++)
+            if (forceId == -1)
             {
-                if (GameManager.RemoteObjects[j].ID != "" && int.Parse(GameManager.RemoteObjects[j].ID) >= highestID)
+                int highestID = 0;
+                for (int j = 0; j < GameManager.RemoteObjects.Count; j++)
                 {
-                    highestID = int.Parse(GameManager.RemoteObjects[j].ID) + 1;
-                    
+                    if (GameManager.RemoteObjects[j].ID != "" && int.Parse(GameManager.RemoteObjects[j].ID) >= highestID)
+                    {
+                        highestID = int.Parse(GameManager.RemoteObjects[j].ID) + 1;
+
+                    }
                 }
+                if (!GameManager.RemoteObjects.Contains(this))
+                {
+                    GameManager.RemoteObjects.Add(this);
+                }
+                ID = highestID.ToString();
+                Debug.Log("Successful: " + ID);
             }
-            if (!GameManager.RemoteObjects.Contains(this))
+            else
             {
-                GameManager.RemoteObjects.Add(this);
-            }   
-            ID = highestID.ToString();
-            Debug.Log("Successful: " + ID);
+                ID = forceId.ToString();
+            }
+           
         }
         if (send)
         {
@@ -83,12 +92,13 @@ public class SyncObject : MonoBehaviour
 
             GameManager.sender.SpawnObjectRequest(obj);
             // Die Children bekommen einfach id ID+1:
-            foreach (SyncObject sync in GetComponentsInChildren<SyncObject>())
+            SyncObject[] sync = GetComponentsInChildren<SyncObject>();
+            for (int s = 0; s < sync.Length; s++ )
             {
-                if (sync.gameObject != gameObject)
+                if (sync[s].gameObject != gameObject)
                 {
                     Debug.Log("Syncing Child");
-                    sync.Init();
+                    sync[s].Init(true, int.Parse(ID) + s + 1);
                 }
             }
         }
@@ -174,6 +184,21 @@ public class SyncObject : MonoBehaviour
                     obj["scaleY"] = transform.localScale.y;
                     obj["scaleZ"] = transform.localScale.z;
                     obj["syncInfoString"] = SyncInfoString;
+                    // ggf. noch mit die Hände synchronisieren
+                    if (GetComponent<NetworkPlayer>() != null)
+                    {
+                        if (GetComponent<NetworkPlayer>().leftHand != null && GetComponent<NetworkPlayer>().rightHand)
+                        {
+                            Vector3 lhp = GetComponent<NetworkPlayer>().leftHand.position;
+                            Vector3 rhp = GetComponent<NetworkPlayer>().rightHand.position;
+                            string ls = "";
+                            string rs = "";
+                            ls = lhp[0] + "_" + lhp[1] + "_" + lhp[2];
+                            rs = rhp[0] + "_" + rhp[1] + "_" + rhp[2];
+                            obj["leftHandRelPos"] = ls;
+                            obj["rightHandRelPos"] = rs;
+                        }
+                    }
                     GameManager.sender.SpawnObjectRequest(obj);
                 }
 
@@ -186,9 +211,28 @@ public class SyncObject : MonoBehaviour
             }
         }
     }
-
+    //public bool breakLerp = false;
+    //public IEnumerator lerpTransform (Vector3 pos, Quaternion rot)
+    //{
+    //    Debug.Log("Lerping");
+    //    // Delay: 0,2 Sekunden
+    //    for (float i = 0; i < 0.2f; i+= Time.deltaTime)
+    //    {
+    //        transform.position = Vector3.Lerp(transform.position, pos, i);
+    //        transform.rotation = Quaternion.Lerp(transform.rotation, rot, i);
+    //        LastPos = transform.position;
+    //        LastRot = transform.rotation;
+    //        if (breakLerp) break;
+    //        yield return null;
+    //    }
+    //    breakLerp = false;
+    //    yield return null;
+    //}
     public void LateUpdate()
     {
+        
+
+
         // Wenn das Objekt gegriffen wird nicht komplett bunt rotieren
         //Vector3 localRot = transform.rotation.eulerAngles;
         //if (lockRotationX)

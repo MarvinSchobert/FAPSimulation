@@ -10,6 +10,9 @@ public class NetworkPlayer : SyncObject
     public int health;
     public int score;
 
+    public Transform rightHand;
+    public Transform leftHand;
+
     public void Start()
     {
         stats = new JObject();
@@ -39,6 +42,11 @@ public class NetworkPlayer : SyncObject
             obj["stats"] = stats;
             GameManager.sender.SpawnObjectRequest(obj);
         }
+    }
+
+    public void changeHandTransformPositions(Vector3 posR, Vector3 posL) {
+        rightHand.transform.position = posR;
+        leftHand.transform.position = posL;
     }
 
     public void AddScore(int value)

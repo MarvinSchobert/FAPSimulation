@@ -30,7 +30,8 @@ public class UDPSend : MonoBehaviour
 
     IPEndPoint remoteEndPoint;
     UdpClient client;
-    public Text UiText;
+    public TMPro.TMP_Text UiText;
+    public Text UiText_Normal;
 
 
     public void Start()
@@ -54,7 +55,8 @@ public class UDPSend : MonoBehaviour
         obj["type"] = "RegisterRqt";
         obj["name"] = "Marvin Schobert";
         obj["port"] = "5555";
-        UiText.text = "Send Message to Server";
+        if (UiText != null) UiText.text = "Send Message to Server";
+        else if (UiText_Normal != null) UiText_Normal.text = "Send Message to Server";
         _sendObject(obj);
     }
     public void OnFinishedProductionTask (string taskId)

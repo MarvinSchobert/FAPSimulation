@@ -116,6 +116,7 @@ public class UDPReceive : MonoBehaviour
                 Debug.Log(e.ToString());
             }
         }
+        receivingUdpClient.Close();
     }
 
     public void OnApplicationQuit()

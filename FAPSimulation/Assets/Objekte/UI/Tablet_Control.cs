@@ -292,9 +292,24 @@ public class Tablet_Control : MonoBehaviour
             if (chosenObject != null)
             {
                 chosenObject.scaleFactor = scaleSlider.value;
-                chosenObject.transform.Translate(new Vector3(posSliderX.value, posSliderY.value, posSliderZ.value)*Time.deltaTime);
+                Vector3 oldPos = chosenObject.transform.position;
+                Quaternion oldRot = chosenObject.transform.rotation;
+                chosenObject.transform.Translate(new Vector3(posSliderX.value * posSliderX.value * posSliderX.value, posSliderY.value * posSliderY.value * posSliderY.value, posSliderZ.value * posSliderZ.value * posSliderZ.value) * Time.deltaTime);
                 
-                chosenObject.transform.Rotate(new Vector3(rotSliderX.value, rotSliderY.value, rotSliderZ.value)*1);
+                chosenObject.transform.Rotate(new Vector3(rotSliderX.value * rotSliderX.value * rotSliderX.value, rotSliderY.value * rotSliderY.value * rotSliderY.value, rotSliderZ.value * rotSliderZ.value * rotSliderZ.value) * 1);
+
+                // Kollision checken
+                Collider[] cols = Physics.OverlapBox(chosenObject.transform.position, chosenObject.GetComponent<Collider>().bounds.extents);
+                foreach (Collider col in cols)
+                {
+                    if (col != chosenObject.GetComponent<Collider>() && col.GetComponentInParent<SyncObject>() != chosenObject)
+                    {
+                        Debug.Log("Colliding");
+                        chosenObject.transform.position = oldPos;
+                        chosenObject.transform.rotation = oldRot;
+                        break;
+                    }
+                }
             }
         }
     }

@@ -183,11 +183,18 @@ public class IKManager : MonoBehaviour
         }
     }
 
-    
+    float increaseFactor = 1;
     public void InverseKinematics(Transform target, float[] angles)
     {
+        float dist = DistanceFromTarget(target, angles);
+
+        // den increaseFactor bearbeiten, je weiter weg, desto größer die Learning Rate
+
+        increaseFactor = 1.0f;
+        if (dist * 2 > 1.0f) increaseFactor = dist * 2;
+
         // Debug.Log("Remaining Distance: " + DistanceFromTarget(target, angles));
-        if (DistanceFromTarget(target, angles) < DistanceThreshold)
+        if (dist < DistanceThreshold)
         {
             if (controlMode == ControlModes.CommandFulfillment)
             {
@@ -202,7 +209,7 @@ public class IKManager : MonoBehaviour
             // Update : Solution -= LearningRate * Gradient
             float gradient = PartialGradient(target, angles, i);
             // Debug.Log("Daten von " + i + ": Angle"+ angles[i] + ", Gradient: " + gradient + ", Angle increase: " + (LearningRate * gradient * -1));
-            angles[i] -= (LearningRate * gradient);
+            angles[i] -= (LearningRate * increaseFactor * gradient);
             if (angles[i] > 180) angles[i] -= 360;
             // Clamp
             if (Joints[i].hasConstraint)

@@ -83,22 +83,28 @@ public class GameMangagement : MonoBehaviour
     {
         for (int i = 0; i < RemoteObjects.Count; i++)
         {
-            
-            if (RemoteObjects[i].ID == "")
+            if (!RemoteObjects[i].isChild)
             {
-                int highestID = 0;
-                for (int j = 0; j < RemoteObjects.Count; j++)
+                if (RemoteObjects[i].ID == "")
                 {
-                    if (RemoteObjects[j].ID != "" && int.Parse(RemoteObjects[j].ID) >= highestID)
+                    int highestID = 0;
+                    for (int j = 0; j < RemoteObjects.Count; j++)
                     {
-                        highestID = int.Parse(RemoteObjects[j].ID) + 1;
+                        if (RemoteObjects[j].ID != "" && int.Parse(RemoteObjects[j].ID) >= highestID)
+                        {
+                            highestID = int.Parse(RemoteObjects[j].ID) + 20;
+                        }
                     }
+                    RemoteObjects[i].ID = highestID.ToString();
                 }
-                RemoteObjects[i].ID = highestID.ToString();
+                RemoteObjects[i].GameManager = this;
+                RemoteObjects[i].Init();
             }
-            RemoteObjects[i].GameManager = this;
-            
-            RemoteObjects[i].Init();            
+            else
+            {
+                RemoteObjects[i].GameManager = this;
+            }
+                      
         }
     }
 
@@ -198,13 +204,34 @@ public class GameMangagement : MonoBehaviour
         {
             if (RemoteObjects[i].ID == obj["ID"].ToString())
             {
-                RemoteObjects[i].transform.position = new Vector3(float.Parse(obj["posX"].ToString()), float.Parse(obj["posY"].ToString()), float.Parse(obj["posZ"].ToString()));
-                RemoteObjects[i].transform.rotation = new Quaternion(float.Parse(obj["rotX"].ToString()), float.Parse(obj["rotY"].ToString()), float.Parse(obj["rotZ"].ToString()), float.Parse(obj["rotW"].ToString()));
+                Vector3 pos = new Vector3(float.Parse(obj["posX"].ToString()), float.Parse(obj["posY"].ToString()), float.Parse(obj["posZ"].ToString()));
+                Quaternion rot = new Quaternion(float.Parse(obj["rotX"].ToString()), float.Parse(obj["rotY"].ToString()), float.Parse(obj["rotZ"].ToString()), float.Parse(obj["rotW"].ToString()));
+
+                RemoteObjects[i].transform.position = pos;
+                RemoteObjects[i].transform.rotation = rot;
                 RemoteObjects[i].LastPos = RemoteObjects[i].transform.position;
                 RemoteObjects[i].LastRot = RemoteObjects[i].transform.rotation;
+                //RemoteObjects[i].breakLerp = true;
+                //StartCoroutine(RemoteObjects[i].lerpTransform(pos, rot));     
                 RemoteObjects[i].scaleFactor = float.Parse(obj["scaleX"].ToString());
                 RemoteObjects[i].lastScale = float.Parse(obj["scaleX"].ToString());
                 RemoteObjects[i].SyncInfoString = obj["syncInfoString"].ToString();
+                if (RemoteObjects[i].GetComponent<NetworkPlayer>() != null)
+                {
+                    if (obj["leftHandRelPos"] != null)
+                    {
+                        string ls = obj["leftHandRelPos"].ToString();
+                        string [] lsa = ls.Split("_".ToCharArray());
+                        Vector3 lsp = new Vector3(float.Parse(lsa[0]), float.Parse(lsa[1]), float.Parse(lsa[2]));
+                        ls = obj["rightHandRelPos"].ToString();
+                        lsa = ls.Split("_".ToCharArray());
+                        Vector3 rsp = new Vector3(float.Parse(lsa[0]), float.Parse(lsa[1]), float.Parse(lsa[2]));
+                        RemoteObjects[i].GetComponent<NetworkPlayer>().changeHandTransformPositions(rsp, lsp);
+                    }
+                }
+                
+                
+                
             }
         }
     }

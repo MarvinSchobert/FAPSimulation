@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - GameManagement
+  - Left Hand
+  - Right Hand
   layers:
   - Default
   - TransparentFX
